@@ -64,8 +64,8 @@ if [ ! -d $REPORT ] ; then mkdir -p $REPORT; fi
 
 for port in $(nmap --open -T5 -n $IP -p- | grep open |cut -d/ -f1); do
     case $port in
-    # FTP
-    "21")
+    # FTP / TFTP
+    "21" | "69")
         letsgo "FTP" "$port"
         BFORCE "FTP"
         ;;
