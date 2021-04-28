@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # GLOBALES
-BRUTEFORCE=0 # 1-YES | 0-NO
-FUZZERS=1 # 1-YES | 0-NO
+BRUTEFORCE=0 # 1-YES | 0-NO - hydra bruteforce attack
+FUZZERS=1 # 1-YES | 0-NO - Use web fuzzers
+MAKEDIC=1 # 1-YES | 0-NO - Make a dict from website
 
 # BF CONFIG
-
 declare -a BF_USER
 BF_USER[0]=root
 BF_USER[1]=user
