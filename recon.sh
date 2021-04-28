@@ -89,7 +89,7 @@ done
 # Reorganizar logs
 for SERVICE in $(find $REPORT/ -type f -exec basename {} \; | cut -d- -f1 | sort | uniq) ; do
     if [ ! -d $REPORT/$SERVICE ] ; then mkdir -p $REPORT/$SERVICE ; fi
-    find $REPORT/ -type f -exec mv -f "{}" "$REPORT/$SERVICE/" \; > /dev/null 2>&1
+    find $REPORT/ -type f -iname $SERVICE-* -exec mv -f "{}" "$REPORT/$SERVICE/" \; > /dev/null 2>&1
 done
 ####################
 
