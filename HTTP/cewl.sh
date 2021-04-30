@@ -26,6 +26,7 @@ echo "[@] Making word-list from website..."
 cewl -w "$REPORT/$SERVICE_U-cewl_$PORT-WORD.dic" http://$IP:$PORT -d 5 --with-numbers > /dev/null 2>&1 &
 pids[${RANDOM}]=$!
 
+sleep 120
 echo "[@] Making mail-list from website..."
 cewl -w "$REPORT/$SERVICE_U-cewl_$PORT-MAIL.dic" http://$IP:$PORT -d 5 -n -e > /dev/null 2>&1 &
 pids[${RANDOM}]=$!

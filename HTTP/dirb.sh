@@ -24,9 +24,10 @@ for DICCIONARIO in ${DIRB_DIC[*]} ; do
     if [ -z ${DICCIONARIO+x} ]; then echo "NO EXISTE $DICCIONARIO"; exit; fi
     if [ ! -f $DICCIONARIO ]; then echo "NO EXISTE $DICCIONARIO"; exit; fi
     DICNAME=$(basename $DICCIONARIO | awk '{print tolower($0)}')
-    echo "[-] Lanzando dirb $DICNAME..."
+    echo "[=] Lanzando dirb $DICNAME..."
     dirb http://$IP:$PORT/ "$DICCIONARIO" -l -r -S -X ",.txt,.html,.php,.asp,.aspx,.jsp" -o "$REPORT/$SERVICE_U-DIRB-$PORT-$DICNAME" > /dev/null 2>&1 &
     pids[${RANDOM}]=$!
+    #sleep 30     
 done
 ####################
 # https://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0

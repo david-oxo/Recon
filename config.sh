@@ -3,7 +3,8 @@
 # GLOBALES
 BRUTEFORCE=0 # 1-YES | 0-NO - hydra bruteforce attack
 FUZZERS=1 # 1-YES | 0-NO - Use web fuzzers
-MAKEDIC=1 # 1-YES | 0-NO - Make a dict from website
+MAKEDIC=0 # 1-YES | 0-NO - Make a dict from website
+MAX_THREADS=8 # Numbers of threads to launch
 
 # BF CONFIG
 declare -a BF_USER

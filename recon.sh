@@ -30,7 +30,14 @@ function letsgo (){
     echo "[+] $SERVICE"
     for script in $(find $PWD/$SERVICE -type f); do 
         bash $script $IP $PUERTO &
-        pids[${RANDOM}]=$!
+        pids[$!]=$!
+        while [ ${#pids[@]} -ge $MAX_THREADS ] ; do
+            for pid in ${pids[*]}; do 
+                ps --pid $pid > /dev/null 2>&1
+                if [ $? -eq 1 ] ; then unset pids[$pid]; fi
+            done
+            sleep 1
+        done
     done
     # https://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
     # run processes and store pids in array
@@ -49,6 +56,13 @@ function BFORCE (){
     for script in $(find $PWD/BRUTEFORCE -type f); do 
         bash $script $IP $SERVICE &
         pids[${RANDOM}]=$!
+        while [ ${#pids[@]} -ge $MAX_THREADS ] ; do
+            for pid in ${pids[*]}; do 
+                ps --pid $pid > /dev/null 2>&1
+                if [ $? -eq 1 ] ; then unset pids[$pid]; fi
+            done
+            sleep 1
+        done
     done
     # https://stackoverflow.com/questions/356100/how-to-wait-in-bash-for-several-subprocesses-to-finish-and-return-exit-code-0
     # run processes and store pids in array

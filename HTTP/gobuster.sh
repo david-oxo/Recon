@@ -24,9 +24,10 @@ for DICCIONARIO in ${GOBUSTER_DIC[*]} ; do
     if [ -z ${DICCIONARIO+x} ]; then echo "NO EXISTE $DICCIONARIO"; exit; fi
     if [ ! -f $DICCIONARIO ]; then echo "NO EXISTE $DICCIONARIO"; exit; fi
     DICNAME=$(basename $DICCIONARIO | awk '{print tolower($0)}')
-    echo "[-] Lanzando gobuster $DICNAME..."
+    echo "[=] Lanzando gobuster $DICNAME..."
     gobuster dir -u http://$IP:$PORT -w "$DICCIONARIO" -z -k -x "txt,html,php,asp,aspx,jsp" -o "$REPORT/$SERVICE_U-GOBUSTER-$PORT-$DICNAME" > /dev/null 2>&1 &
     pids[${RANDOM}]=$!
+    #sleep 30 
 done
 
 ####################
