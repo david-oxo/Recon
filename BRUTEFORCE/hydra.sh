@@ -10,6 +10,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 if [ ! -f $DIR/../config.sh ]; then echo "NO SE PUEDE CARGAR LA CONFIG"; exit; fi
 source $DIR/../config.sh
 if [ "$BRUTEFORCE" -ne "1" ]; then exit ; fi
+if [ "${QUICK}" -eq "1" ]; then exit ; fi
 
 # VARIABLES
 if [ -z ${REPORT+x} ]; then echo "NO EXISTE REPORT"; exit; fi

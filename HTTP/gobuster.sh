@@ -9,6 +9,7 @@ if [ ! -f $DIR/../config.sh ]; then echo "NO SE PUEDE CARGAR LA CONFIG"; exit; f
 source $DIR/../config.sh
 
 if [ "${FUZZERS}" -ne "1" ]; then exit ; fi 
+if [ "${QUICK}" -eq "1" ]; then exit ; fi
 
 ####################
 if [ -z ${REPORT+x} ]; then

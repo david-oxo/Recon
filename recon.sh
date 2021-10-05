@@ -1,15 +1,25 @@
 #!/bin/bash
+export QUICK=0
+if [ "$(echo $@ | grep -e " -q" | wc -l)" == "1" ] ; then export QUICK=1 ; fi
+args=$(echo $@ | sed -e 's/-q//' -e 's/ //')
 
-if [ -z ${1+x} ]; then 
+if [ "-$args" == "-" ]; then 
     select network in $(ip route | grep -v "default" | awk '{print $1}') ; do 
         select ip in $(nmap -sn $network -oG - | awk '{match($2,/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/); ip = substr($2,RSTART,RLENGTH); print ip}'); do
+        # arp-scan -x $network 
             IP=$ip
             break
         done
         break
     done
     echo $IP
-else IP=$1 ; fi
+else 
+    IP=$args
+    if ! [[ $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "$IP is not a valid IP!"
+      exit
+    fi
+fi
 clear
 ####################
 
@@ -25,10 +35,10 @@ function letsgo (){
     local SERVICE=$1
     local PUERTO=$2
     
-    if [ ! -d $PWD/$SERVICE ]; then return 1 ; fi
+    if [ ! -d $DIR/$SERVICE ]; then return 1 ; fi
     
     echo "[+] $SERVICE"
-    for script in $(find $PWD/$SERVICE -type f); do 
+    for script in $(find $DIR/$SERVICE -type f); do 
         bash $script $IP $PUERTO &
         pids[$!]=$!
         while [ ${#pids[@]} -ge $MAX_THREADS ] ; do
@@ -50,10 +60,10 @@ function letsgo (){
 function BFORCE (){
     local SERVICE=$1
     if [ "${BRUTEFORCE}" -ne "1" ]; then return 1 ; fi 
-    if [ ! -d $PWD/BRUTEFORCE ]; then return 1 ; fi
+    if [ ! -d $DIR/BRUTEFORCE ]; then return 1 ; fi
     
     echo "[!] BRUTEFORCE $SERVICE"
-    for script in $(find $PWD/BRUTEFORCE -type f); do 
+    for script in $(find $DIR/BRUTEFORCE -type f); do 
         bash $script $IP $SERVICE &
         pids[${RANDOM}]=$!
         while [ ${#pids[@]} -ge $MAX_THREADS ] ; do
@@ -73,10 +83,10 @@ function BFORCE (){
 }
 
 ############ MAIN()
-export REPORT=$DIR/$IP
+export REPORT=$PWD/$IP
 if [ ! -d $REPORT ] ; then mkdir -p $REPORT; fi
 
-for port in $(nmap --open -T5 -n $IP -p- | grep open |cut -d/ -f1); do
+for port in $(nmap --open -A -sS -T5 -n $IP -p- | grep open |cut -d/ -f1); do
     case $port in
     # FTP / TFTP
     "21" | "69")
@@ -101,6 +111,7 @@ for port in $(nmap --open -T5 -n $IP -p- | grep open |cut -d/ -f1); do
 done
 
 # Reorganizar logs
+unset $QUICK
 for SERVICE in $(find $REPORT/ -type f -exec basename {} \; | cut -d- -f1 | sort | uniq) ; do
     if [ ! -d $REPORT/$SERVICE ] ; then mkdir -p $REPORT/$SERVICE ; fi
     find $REPORT/ -type f -iname $SERVICE-* -exec mv -f "{}" "$REPORT/$SERVICE/" \; > /dev/null 2>&1
