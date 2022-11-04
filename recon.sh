@@ -1,5 +1,7 @@
 #!/bin/bash
 export QUICK=0
+export COLORIZE=1
+
 if [ "$(echo $@ | grep -e " -q" | wc -l)" == "1" ] ; then export QUICK=1 ; fi
 args=$(echo $@ | sed -e 's/-q//' -e 's/ //')
 
@@ -15,9 +17,11 @@ if [ "-$args" == "-" ]; then
     echo $IP
 else 
     IP=$args
-    if ! [[ $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    if ! [[ $IP =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] ; then
+    if ! [[ $IP =~ ^([a-z0-9\-]+\.){1,2}[a-z]{2,10}$ ]] ; then
       echo "$IP is not a valid IP!"
       exit
+    fi
     fi
 fi
 clear
@@ -31,13 +35,20 @@ if [ ! -f $DIR/config.sh ]; then echo "NO SE PUEDE CARGAR LA CONFIG"; exit; fi
 source $DIR/config.sh
 
 ################FUNC()
+function print_console () {
+    if [ -z ${1+x} ]; then local COLOR=$Color_Off ; else local COLOR=$1 ; fi
+    if [ -z ${2+x} ]; then echo "No hay mensaje"; exit; else local MSG=$2 ; fi
+    
+    if [ "$COLORIZE" -eq "1" ]; then echo -e $COLOR$MSG$Color_Off ; else echo $MSG ;fi 
+}
+
 function letsgo (){
     local SERVICE=$1
     local PUERTO=$2
     
     if [ ! -d $DIR/$SERVICE ]; then return 1 ; fi
     
-    echo "[+] $SERVICE"
+    print_console $Yellow "[+] $SERVICE"
     for script in $(find $DIR/$SERVICE -type f); do 
         bash $script $IP $PUERTO &
         pids[$!]=$!
@@ -62,7 +73,7 @@ function BFORCE (){
     if [ "${BRUTEFORCE}" -ne "1" ]; then return 1 ; fi 
     if [ ! -d $DIR/BRUTEFORCE ]; then return 1 ; fi
     
-    echo "[!] BRUTEFORCE $SERVICE"
+    print_console $Red "[!] BRUTEFORCE $SERVICE"
     for script in $(find $DIR/BRUTEFORCE -type f); do 
         bash $script $IP $SERVICE &
         pids[${RANDOM}]=$!
@@ -86,7 +97,17 @@ function BFORCE (){
 export REPORT=$PWD/$IP
 if [ ! -d $REPORT ] ; then mkdir -p $REPORT; fi
 
-for port in $(nmap --open -A -sS -T5 -n $IP -p- | grep open |cut -d/ -f1); do
+print_console $Blue "[!] Lanzando primer escaneo.."
+
+nmap --open -A -sS -sV -T5 -n $IP -p- > "$REPORT/$IP_nmap.txt"
+if [ "$COLORIZE" -eq "1" ]; then echo -n -e $Red ; fi 
+echo [!] First view:
+echo $(cat "$REPORT/$IP_nmap.txt" | grep open | wc -l) ports opened.
+cat "$REPORT/$IP_nmap.txt" | grep open
+if [ "$COLORIZE" -eq "1" ]; then echo -n -e $Color_Off ; fi 
+
+print_console $Blue "[!] Interactuando con los puertos abiertos..."
+for port in $(cat "$REPORT/$IP_nmap.txt" | grep open |cut -d/ -f1); do
     case $port in
     # FTP / TFTP
     "21" | "69")
@@ -104,7 +125,7 @@ for port in $(nmap --open -A -sS -T5 -n $IP -p- | grep open |cut -d/ -f1); do
         ;;
     # Matching with invalid data
     *)
-        echo "OTRO: $port"
+        print_console $Blue "OTRO: $port"
         #break
         ;;
     esac
