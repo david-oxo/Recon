@@ -15,6 +15,7 @@ EOP
 
 SUDO="sudo"
 if [ $(id -u) -eq 0 ] ; then SUDO=" "; fi
+
 $SUDO apt update -y
 $SUDO apt install -y $PROGRAMS
 
