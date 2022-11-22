@@ -1,6 +1,8 @@
 #!/bin/bash
 
 read -r -d '' PROGRAMS << EOP
+iproute2
+net-tools
 hydra
 cewl
 curl
